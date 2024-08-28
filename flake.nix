@@ -15,7 +15,8 @@
           # Getting started
           1. Edit rust-toolchain.toml, to change rust-toolchain version.
           2. Edit project's name in flake.nix
-          3. Run `cargo init`!!
+          3. If you want to create binary application, edit .gitignore
+          4. Run `cargo init`!!
         '';
       };
     };
