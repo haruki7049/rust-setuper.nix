@@ -19,6 +19,17 @@
           4. Run `cargo init`!!
         '';
       };
+      with-flake-parts = {
+        path = ./templates/with-flake-parts;
+        description = "A Rust template, using crane, treefmt-nix and flake-parts";
+        welcomeText = ''
+          # Getting started
+          1. Edit rust-toolchain.toml, to change rust-toolchain version.
+          2. Edit project's name in flake.nix
+          3. If you want to create binary application, edit .gitignore
+          4. Run `cargo init`!!
+        '';
+      };
     };
   } //
     flake-utils.lib.eachDefaultSystem (system:
