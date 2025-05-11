@@ -57,12 +57,21 @@
             # Nix
             programs.nixfmt.enable = true;
 
-            # ShellScripts
-            programs.shellcheck.enable = true;
-            programs.shfmt.enable = true;
+            # Rust
+            programs.rustfmt.enable = true;
+
+            # TOML
+            programs.taplo.enable = true;
 
             # GitHub Actions
             programs.actionlint.enable = true;
+
+            # Markdown
+            programs.mdformat.enable = true;
+
+            # ShellScript
+            programs.shellcheck.enable = true;
+            programs.shfmt.enable = true;
           };
 
           devShells.default = pkgs.mkShell {
