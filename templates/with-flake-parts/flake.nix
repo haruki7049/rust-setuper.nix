@@ -1,27 +1,37 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    treefmt-nix.url = "github:numtide/treefmt-nix";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     systems.url = "github:nix-systems/default";
-    rust-overlay.url = "github:oxalica/rust-overlay";
     crane.url = "github:ipetkov/crane";
+    flake-compat.url = "github:edolstra/flake-compat";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
       systems = import inputs.systems;
+
       imports = [
         inputs.treefmt-nix.flakeModule
       ];
+
       perSystem =
         {
           pkgs,
           lib,
           system,
-          inputs',
-          self',
           ...
         }:
         let
@@ -32,10 +42,9 @@
           cargoArtifacts = craneLib.buildDepsOnly {
             inherit src;
           };
-          bevy-clicker = craneLib.buildPackage {
+          project = craneLib.buildPackage {
             inherit src cargoArtifacts;
             strictDeps = true;
-
             doCheck = true;
           };
           cargo-clippy = craneLib.cargoClippy {
@@ -45,18 +54,6 @@
           cargo-doc = craneLib.cargoDoc {
             inherit src cargoArtifacts;
           };
-          llvm-cov-text = craneLib.cargoLlvmCov {
-            inherit cargoArtifacts src;
-            cargoExtraArgs = "--locked";
-            cargoLlvmCovCommand = "test";
-            cargoLlvmCovExtraArgs = "--text --output-dir $out";
-          };
-          llvm-cov = craneLib.cargoLlvmCov {
-            inherit cargoArtifacts src;
-            cargoExtraArgs = "--locked";
-            cargoLlvmCovCommand = "test";
-            cargoLlvmCovExtraArgs = "--html --output-dir $out";
-          };
         in
         {
           _module.args.pkgs = import inputs.nixpkgs {
@@ -65,29 +62,48 @@
 
           treefmt = {
             projectRootFile = "flake.nix";
+
+            # Nix
             programs.nixfmt.enable = true;
+
+            # Rust
             programs.rustfmt.enable = true;
+
+            # TOML
             programs.taplo.enable = true;
+
+            # GitHub Actions
             programs.actionlint.enable = true;
+
+            # Markdown
+            programs.mdformat.enable = true;
+
+            # ShellScript
+            programs.shellcheck.enable = true;
+            programs.shfmt.enable = true;
+
+            settings.formatter = {
+              mdformat.excludes = [
+                "CODE_OF_CONDUCT.md"
+              ];
+            };
           };
 
           packages = {
-            inherit bevy-clicker llvm-cov llvm-cov-text;
-            default = bevy-clicker;
+            inherit project;
+            default = project;
             doc = cargo-doc;
           };
 
           checks = {
             inherit
-              bevy-clicker
+              project
               cargo-clippy
               cargo-doc
-              llvm-cov
-              llvm-cov-text
               ;
           };
 
-          devShells.default = pkgs.mkShell rec {
+          devShells.default = pkgs.mkShell {
             packages = [
               # Rust
               rust
