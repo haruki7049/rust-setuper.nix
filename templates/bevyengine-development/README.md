@@ -3,4 +3,4 @@ This project-template has:
 - https://github.com/ipetkov/crane
 - https://github.com/oxalica/rust-overlay
 - https://github.com/numtide/treefmt-nix
-- https://github.com/numtide/flake-utils
+- https://github.com/hercules-ci/flake-parts
